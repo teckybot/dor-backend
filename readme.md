@@ -1,5 +1,6 @@
 
 # 📘 Purifier Management Backend
+![version](https://img.shields.io/badge/version-1.0.0-blue)
 
 ## 🚀 Overview
 
@@ -126,4 +127,5 @@ Server runs at:
 
 ---
 
-Would you like me to also **include example request/response JSON bodies** for each API (so your hardware & frontend team can directly test Phase 1 endpoints)?
+## 📓 Changelog
+See detailed version history in [CHANGELOG.md](./CHANGELOG.md)
