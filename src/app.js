@@ -5,6 +5,8 @@ import morgan from 'morgan';
 
 import purifierRoutes from './routes/purifierRoutes.js';
 import developerPurifierRoutes from './routes/developerPurifierRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import { authenticate, authorize } from './middlewares/auth.js';
 import { removeHeaders,errorHandler } from './middlewares/header_ErrorHandler.js';
 import { connectDB } from './config/db.js';
 
@@ -23,7 +25,9 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // Routes
-app.use('/api/purifiers', purifierRoutes);              // Admin / Application APIs
+app.use('/api/auth', authRoutes);
+// Protect admin/application APIs - only admin should manage purifiers
+app.use('/api/purifiers', authenticate, authorize(['admin']), purifierRoutes);              // Admin / Application APIs
 app.use('/api/dev/purifiers', developerPurifierRoutes); // Developer / IoT APIs
 
 // Test route
