@@ -1,6 +1,7 @@
 
 import Purifier from '../models/Purifier.js';
 import activeTimers from '../utils/activeTimers.js';
+import { emitPurifierUpdate } from '../sockets/index.js';
 
 /**
  * API1 - GET /api/purifiers/:id/status
@@ -14,6 +15,9 @@ export const getSwitchStatus = async (req, res) => {
     if (!purifier) {
       return res.status(404).json({ message: 'Purifier not found', id });
     }
+
+    // Emit real-time update to dashboard
+    emitPurifierUpdate(purifier);
 
     res.json({
       id: purifier.id,
@@ -55,6 +59,9 @@ export const getSwitchStatusAndActivate = async (req, res) => {
           purifier.status = false; // turn OFF after 60s
           purifier.lastOnline = new Date();
           await purifier.save();
+
+          // Emit update after timer ends
+          emitPurifierUpdate(purifier);
         }
         activeTimers.delete(id);
       }, 60000); // 60 seconds
@@ -62,6 +69,9 @@ export const getSwitchStatusAndActivate = async (req, res) => {
       activeTimers.set(id, timer);
       await purifier.save();
     }
+
+    // Emit update immediately after activation
+    emitPurifierUpdate(purifier);
 
     res.json({
       id: purifier.id,
@@ -97,6 +107,9 @@ export const updateSwitchStatus = async (req, res) => {
     purifier.onlineStatus = status === '1';
 
     await purifier.save();
+
+     // Emit update to dashboard
+    emitPurifierUpdate(purifier);
 
     res.json({
       id: purifier.id,

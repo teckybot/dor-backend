@@ -1,5 +1,6 @@
 
 import Purifier from '../models/Purifier.js';
+import { emitPurifierUpdate } from '../sockets/index.js';
 
 // Get all purifiers
 export const getAllPurifiers = async (req, res) => {
@@ -17,6 +18,10 @@ export const createPurifier = async (req, res) => {
   try {
     const newPurifier = new Purifier(purifierData);
     const savedPurifier = await newPurifier.save();
+
+    // Emit update after a new purifier is created
+    emitPurifierUpdate(savedPurifier);
+    
     res.status(201).json(savedPurifier);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -35,6 +40,10 @@ export const updatePurifier = async (req, res) => {
     if (!updatedPurifier) {
       return res.status(404).json({ message: 'Purifier not found' });
     }
+
+    // Notify clients in real-time
+    emitPurifierUpdate(updatedPurifier);
+
 
     res.json(updatedPurifier);
   } catch (error) {
@@ -67,6 +76,10 @@ export const togglePurifierStatus = async (req, res) => {
     purifier.lastUpdated = new Date();
 
     const updatedPurifier = await purifier.save();
+
+     // Notify clients in real-time
+    emitPurifierUpdate(updatedPurifier);
+
     res.json(updatedPurifier);
   } catch (error) {
     res.status(500).json({ message: 'Error toggling purifier status', error: error.message });
